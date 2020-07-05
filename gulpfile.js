@@ -84,7 +84,8 @@ function html(){
     .pipe(useref())
     .pipe(gulpif('*.js', uglify()))
     .pipe(gulpif('*.css', cssnano()))
-    .pipe(gulpif('*.jpg', image()))
+    .pipe(gulpif(['*.jpg','*.png'], image()))
+    // .pipe(gulpif('*.png', image()))
     .pipe(gulp.dest(paths.html.dest))
     .pipe(browser.stream()) 
 }
