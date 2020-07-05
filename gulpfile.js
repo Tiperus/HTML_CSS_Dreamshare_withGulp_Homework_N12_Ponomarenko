@@ -3,8 +3,10 @@ const sass = require('gulp-sass');
 const autoprefixer = require('gulp-autoprefixer');
 const cssnano = require('gulp-cssnano');
 const rename = require("gulp-rename");
-
-const concat = require('gulp-concat');
+const useref = require('gulp-useref');
+const gulpif = require('gulp-if');
+// const processhtml = require('gulp-processhtml')
+// const concat = require('gulp-concat');
 const uglify = require('gulp-uglify');
 
 const image = require('gulp-image');
@@ -26,7 +28,11 @@ const paths = {
     },
     html: {
         src: 'app/*.html',
-        dest: 'build/*.html'
+        dest: 'build/'
+    },
+    fonts: {
+        src: 'app/fonts/**/*.*',
+        dest: 'build/fonts'
     }
 }
 
@@ -47,24 +53,50 @@ function styles(){
     return gulp.src(paths.styles.src)
         .pipe(sass())
         .pipe(autoprefixer())
-        .pipe(cssnano())
+        // .pipe(cssnano())
         .pipe(rename({
             suffix: '.min'
         }))
         .pipe(gulp.dest(paths.styles.dest))
         .pipe(browser.stream())
 }
+function images(){
+    return gulp.src(paths.images.src)
+        .pipe(gulp.dest(paths.images.dest))
+        // .pipe(image())
+        .pipe(browser.stream())
+}
+function font(){
+    return gulp.src(paths.fonts.src)
+        .pipe(gulp.dest(paths.fonts.dest))
+        .pipe(browser.stream())
+}
+function js(){
+    return gulp.src(paths.js.src)
+    // .pipe(concat('all.js'))
+    // .pipe(uglify())
+    .pipe(gulp.dest(paths.js.dest))
+    .pipe(browser.stream())
+}
+
 function html(){
     return gulp.src(paths.html.src)
+    .pipe(useref())
+    .pipe(gulpif('*.js', uglify()))
+    .pipe(gulpif('*.css', cssnano()))
+    .pipe(gulpif('*.jpg', image()))
     .pipe(gulp.dest(paths.html.dest))
     .pipe(browser.stream()) 
 }
 function watch(){
     gulp.watch(paths.styles.src, styles)
+    gulp.watch(paths.images.src, images)
+    gulp.watch(paths.fonts.src, font)
+    gulp.watch(paths.js.src, js)
     gulp.watch(paths.html.src, html)
     gulp.watch('./app/index.html', gulp.series(browserSyncReload))
 }
-const build = gulp.parallel(styles, html)
+const build = gulp.parallel(styles, images, font, js, html)
 gulp.task('build', build)
 
 gulp.task('default', gulp.parallel(watch,build,browserSync))
