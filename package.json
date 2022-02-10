@@ -33,7 +33,7 @@
     "gulp-sass": "^4.1.0",
     "gulp-uglify": "^3.0.2",
     "gulp-useref": "^4.0.1",
-    "node-sass": "^4.14.1"
+    "node-sass": "^7.0.0"
   },
   "dependencies": {
     "link-href": "^1.0.1"
